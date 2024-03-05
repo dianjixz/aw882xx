@@ -13,5 +13,4 @@ aw882xx_drv-y := \
 
 #ccflags-y += -DDEBUG
 
-
 obj-$(CONFIG_AW882XX_DRV) += aw882xx_drv.o

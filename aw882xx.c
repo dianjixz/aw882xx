@@ -2307,13 +2307,17 @@ err_sysfs:
 
 	return ret;
 }
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
+static void aw882xx_i2c_remove(struct i2c_client *i2c)
+#else
 static int aw882xx_i2c_remove(struct i2c_client *i2c)
+#endif
 {
 	struct aw882xx *aw882xx = i2c_get_clientdata(i2c);
 
 	aw_dev_info(aw882xx->dev, "enter");
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,1,0)
 	/*rm irq*/
 	if (gpio_to_irq(aw882xx->irq_gpio))
 		devm_free_irq(&i2c->dev,
@@ -2325,6 +2329,7 @@ static int aw882xx_i2c_remove(struct i2c_client *i2c)
 		devm_gpio_free(&i2c->dev, aw882xx->irq_gpio);
 	if (gpio_is_valid(aw882xx->reset_gpio))
 		devm_gpio_free(&i2c->dev, aw882xx->reset_gpio);
+#endif
 
 	/*rm attr node*/
 	sysfs_remove_group(&i2c->dev.kobj, &aw882xx_attribute_group);
@@ -2346,8 +2351,9 @@ static int aw882xx_i2c_remove(struct i2c_client *i2c)
 	}
 	mutex_unlock(&g_aw882xx_lock);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,1,0)
 	return 0;
-
+#endif
 }
 
 static void aw882xx_i2c_shutdown(struct i2c_client *i2c)
